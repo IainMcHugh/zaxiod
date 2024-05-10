@@ -1,6 +1,6 @@
 {
   "name": "zaxiod",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "iAxios API with zod safety",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

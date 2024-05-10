@@ -19,33 +19,43 @@ const DELETE = { method: "DELETE" };
 
 const zaxiod = (baseConfig: ZaxiodConfig) => ({
   get:
-    <Z extends ZodTypeAny = ZodNever>(schema: ZPromise<Z>) =>
+    <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, headers?: HeadersInit) =>
-      await combine<Z>(schema)(baseConfig, path, {
+      await combine<Z>(z.promise(schema))(baseConfig, path, {
         ...headers,
         ...GET,
       }),
   post:
-    <Z extends ZodTypeAny = ZodNever>(schema: ZPromise<Z>) =>
+    <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, data: Zinfer<Z>, headers?: HeadersInit) =>
-      await combine<Z>(schema)(baseConfig, path, { ...headers, ...POST }, data),
+      await combine<Z>(z.promise(schema))(
+        baseConfig,
+        path,
+        { ...headers, ...POST },
+        data,
+      ),
   put:
-    <Z extends ZodTypeAny = ZodNever>(schema: ZPromise<Z>) =>
+    <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, data: Zinfer<Z>, headers?: HeadersInit) =>
-      await combine<Z>(schema)(baseConfig, path, { ...headers, ...PUT }, data),
+      await combine<Z>(z.promise(schema))(
+        baseConfig,
+        path,
+        { ...headers, ...PUT },
+        data,
+      ),
   patch:
-    <Z extends ZodTypeAny = ZodNever>(schema: ZPromise<Z>) =>
+    <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, data: Partial<Zinfer<Z>>, headers?: HeadersInit) =>
-      await combine<Z>(schema)(
+      await combine<Z>(z.promise(schema))(
         baseConfig,
         path,
         { ...headers, ...PATCH },
         data,
       ),
   delete:
-    <Z extends ZodTypeAny = ZodNever>(schema: ZPromise<Z>) =>
+    <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, headers?: HeadersInit) =>
-      await combine<Z>(schema)(baseConfig, path, {
+      await combine<Z>(z.promise(schema))(baseConfig, path, {
         ...headers,
         ...DELETE,
       }),
@@ -87,8 +97,8 @@ const fetchWrapper =
     ).json();
     const res = config.onRes ? config.onRes(response) : response;
     return schema.safeParse(res) as SafeParseReturnType<
-      ZPromise<Zinfer<Z>>,
-      ZPromise<Zinfer<Z>>
+      Promise<Zinfer<Z>>,
+      Promise<Zinfer<Z>>
     >;
   };
 

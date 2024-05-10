@@ -2,7 +2,6 @@ import type { ZodTypeAny, ZodNever, SafeParseReturnType } from "zod";
 import { z } from "zod";
 
 type Zinfer<Z extends ZodTypeAny = ZodNever> = z.infer<Z>;
-type ZPromise<Z extends ZodTypeAny = ZodNever> = z.ZodPromise<Z>;
 
 export type ZaxiodConfig = {
   baseURL: string;
@@ -21,32 +20,22 @@ const zaxiod = (baseConfig: ZaxiodConfig) => ({
   get:
     <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, headers?: HeadersInit) =>
-      await combine<Z>(z.promise(schema))(baseConfig, path, {
+      await combine<Z>(schema)(baseConfig, path, {
         ...headers,
         ...GET,
       }),
   post:
     <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, data: Zinfer<Z>, headers?: HeadersInit) =>
-      await combine<Z>(z.promise(schema))(
-        baseConfig,
-        path,
-        { ...headers, ...POST },
-        data,
-      ),
+      await combine<Z>(schema)(baseConfig, path, { ...headers, ...POST }, data),
   put:
     <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, data: Zinfer<Z>, headers?: HeadersInit) =>
-      await combine<Z>(z.promise(schema))(
-        baseConfig,
-        path,
-        { ...headers, ...PUT },
-        data,
-      ),
+      await combine<Z>(schema)(baseConfig, path, { ...headers, ...PUT }, data),
   patch:
     <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, data: Partial<Zinfer<Z>>, headers?: HeadersInit) =>
-      await combine<Z>(z.promise(schema))(
+      await combine<Z>(schema)(
         baseConfig,
         path,
         { ...headers, ...PATCH },
@@ -55,14 +44,14 @@ const zaxiod = (baseConfig: ZaxiodConfig) => ({
   delete:
     <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
     async (path: string, headers?: HeadersInit) =>
-      await combine<Z>(z.promise(schema))(baseConfig, path, {
+      await combine<Z>(schema)(baseConfig, path, {
         ...headers,
         ...DELETE,
       }),
 });
 
 const combine =
-  <Z extends ZodTypeAny = ZodNever>(schema: ZPromise<Z>) =>
+  <Z extends ZodTypeAny = ZodNever>(schema: Z) =>
   async (
     baseConfig: ZaxiodConfig,
     path: string,
@@ -79,10 +68,7 @@ const combine =
   };
 
 const fetchWrapper =
-  <Z extends ZodTypeAny = ZodNever>(
-    config: ZaxiodConfig,
-    schema: ZPromise<Z>,
-  ) =>
+  <Z extends ZodTypeAny = ZodNever>(config: ZaxiodConfig, schema: Z) =>
   async (...args: Parameters<typeof fetch>) => {
     const request: RequestInit = {
       ...args[1],

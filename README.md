@@ -22,8 +22,8 @@ export const gateway = zaxiod({
   baseHeaders,
 });
 
-export const nextServerGateway = zaxiod({
-  baseURL: "http://localhost:8000/api",
+export const frontendGateway = zaxiod({
+  baseURL: "http://localhost:3000/api",
   baseHeaders,
 });
 ```
@@ -82,11 +82,56 @@ And use! By passing the schema you are guaranteeing the return type to be safe-p
 const getMyIngredient = async (): Promise<Ingredient | null> => {
   const response = await ingredients.findById(23);
   if (response.success) {
-    // 'data' is of type 'Ingredient'
-    return response.data;
+    // awaited 'data' is of type 'Ingredient'
+    return await response.data;
   } else {
     // 'error' is of type 'ZodError'
     console.log(response.error.message);
+    return null;
+  }
+};
+```
+
+## Interceptors
+
+Sometimes you will want to attach interceptors for all requests going through a particular gateway. A common use case for this is sending authorization tokens with each request.
+
+```ts
+const gateway = zaxiod({
+  baseURL: "http://localhost:8000",
+  onReq: (req) => {
+    req.headers = {
+      ...req.headers,
+      Authorization: `Bearer ${token}`,
+    };
+    // must return req
+    return req;
+  },
+  onRes: (res) => {
+    logService.log(res.status);
+    // must return res
+    return res;
+  },
+});
+```
+
+As you will most likely need to pass the `token` from within the appropriate point in your code, you can structure your code like this:
+
+```ts
+const getServerProps = async (context: ServerContext) => {
+  const id = context.query;
+  const token = await getToken(context);
+  const api = zaxiod(getGateway(token);
+  const ingredientsResponse = await api.ingredients.findById(id);
+  if (ingredientsResponse.success) {
+    const ingredients = await ingredientsResponse.data;
+    return {
+      props: {
+        ingredients,
+      },
+    };
+  } else {
+    context.logger.error(ingredientsResponse.error);
     return null;
   }
 };

@@ -78,10 +78,9 @@ const fetchWrapper =
       },
     };
     const req: RequestInit = config.onReq ? config.onReq(request) : request;
-    const response = await (
-      await fetch(`${config.baseURL}${args[0]}`, req)
-    ).json();
-    const res = config.onRes ? config.onRes(response) : response;
+    const fetched = await fetch(`${config.baseURL}${args[0]}`, req);
+    const response = config.onRes ? config.onRes(fetched) : fetched;
+    const res = await response.json();
     return schema.safeParse(res) as SafeParseReturnType<
       Promise<Zinfer<Z>>,
       Promise<Zinfer<Z>>

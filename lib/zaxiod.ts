@@ -86,7 +86,10 @@ const fetchWrapper =
       await fetch(`${config.baseURL}${args[0]}`, req)
     ).json();
     const res = config.onRes ? config.onRes(response) : response;
-    return schema.safeParse(res) as SafeParseReturnType<Zinfer<Z>, Zinfer<Z>>;
+    return schema.safeParse(res) as SafeParseReturnType<
+      ZPromise<Zinfer<Z>>,
+      ZPromise<Zinfer<Z>>
+    >;
   };
 
 export { zaxiod };

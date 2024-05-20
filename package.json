@@ -5,17 +5,26 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup index.ts --format cjs,esm --dts",
     "lint": "tsc",
     "test": "vitest",
     "test:coverage": "vitest run --coverage && open coverage/index.html"
   },
-  "keywords": ["axios", "zod", "api", "typescript", "javascript"],
+  "keywords": [
+    "axios",
+    "zod",
+    "api",
+    "typescript",
+    "javascript"
+  ],
   "author": "Iain McHugh",
   "license": "MIT",
   "devDependencies": {
+    "@biomejs/biome": "1.7.3",
     "@types/node": "^20.12.7",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5",
